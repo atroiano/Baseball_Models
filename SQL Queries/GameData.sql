@@ -1,6 +1,5 @@
 SELECT 
-g.*
-,g.GAME_ID
+g.GAME_ID
 ,g.Game_DY
 ,g.DAYNIGHT_PARK_CD
 ,g.AWay_team_id
@@ -20,7 +19,7 @@ g.*
 ,g.Home_err_Ct
 ,g.away_lob_ct
 ,g.home_lob_ct
-,case when g.save_pit_id is not null then 'yes' else 'no' end as SavedGame
+,case when g.save_pit_id is not null then 'yes' else 'no' end as wasthereasave
 FROM baseball.games g
 left join baseball.lkup_cd_park_wind_direction wd on wd.VALUE_CD = g.WIND_DIRECTION_PARK_CD
 WHERE game_id = 'PHI201004120'

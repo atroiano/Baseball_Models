@@ -4,6 +4,8 @@ Pit_ID
 ,sum(PA_BALL_CT+PA_CALLED_STRIKE_CT+PA_SWINGMISS_STRIKE_CT+PA_FOUL_STRIKE_CT+PA_INPLAY_STRIKE_CT+PA_OTHER_STRIKE_CT) as TotalPitches
 ,sum(EVENT_OUTS_CT)/3 as InningsPitched
 ,count(bat_id) as BattersFaced
+,PIT_START_FL
+,PIT_HAND_CD
 ,substring( game_id, 4, 8 ) as date  
 FROM baseball.events 
 where HOME_TEAM_ID = 'PHI' 
@@ -15,3 +17,5 @@ substring( game_id, 4, 8 )
 ,AWAY_TEAM_ID
 ,Pit_ID
 ,case when BAT_HOME_ID = 1 then AWAY_TEAM_ID else HOME_TEAM_ID end 
+,PIT_START_FL
+,PIT_HAND_CD

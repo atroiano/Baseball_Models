@@ -17,7 +17,7 @@ m <- fetch(master, n = -1)
 dbClearResult(dbListResults(con)[[1]])
 
 #SQL on the teams table to match Baseball Ref team_ID
-teams <- dbSendQuery(con, "SELECT year_id as year_ID, team_id as team_ID FROM Baseball.teams")
+teams <- dbSendQuery(con, "SELECT yearID as year_ID, teamID as teamID,teamIDBR as team_ID from baseball.Teams_Lah")
 t <- fetch(teams, n = -1)
 
 df2 <- left_join(df, m, by = c("player_ID"))
@@ -79,3 +79,4 @@ dbWriteTable(con, name='war_pitching', value=final, row.names = FALSE, overwrite
 all_cons <- dbListConnections(MySQL())
 for(con in all_cons) 
   dbDisconnect(con)
+  

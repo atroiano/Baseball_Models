@@ -16,7 +16,7 @@ master <- dbSendQuery(con, "SELECT playerID as player_ID, bbrefID, retroid FROM 
 m <- fetch(master, n = -1)
 dbClearResult(dbListResults(con)[[1]])
 
-teams <- dbSendQuery(con, "SELECT year_ID, team_ID from baseball.teams")
+teams <- dbSendQuery(con, "SELECT yearID as year_ID, teamID as teamID,teamIDBR as team_ID from baseball.Teams_Lah")
 t <- fetch(teams, n = -1)
 
 #Join master and war data frames

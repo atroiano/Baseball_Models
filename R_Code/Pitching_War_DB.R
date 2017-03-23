@@ -9,26 +9,25 @@ fileUrl <- "http://www.baseball-reference.com/data/war_daily_pitch.txt"
 download.file(fileUrl, destfile="war_daily_pitch.csv", method="curl")
 
 df <- read.csv("war_daily_pitch.csv", header=TRUE)
-con <- dbConnect(MySQL(), user='atroiano', password='Start321!', dbname='lahman2016', host='rds-mysql-baseball.chnrrc0i0hax.us-east-1.rds.amazonaws.com')
+con <- dbConnect(MySQL(), user='root', password='andrew', dbname='Baseball', host='127.0.0.1')
 
 #SQL the database for playerid on the master table "bbrefid" are the Baseball Reference ids
-master <- dbSendQuery(con, "SELECT playerID as player_ID, bbrefID FROM lahman2016.Master")
+master <- dbSendQuery(con, "SELECT playerID as player_ID, bbrefID, retroid FROM Baseball.Master")
 m <- fetch(master, n = -1)
 dbClearResult(dbListResults(con)[[1]])
 
 #SQL on the teams table to match Baseball Ref team_ID
-teams <- dbSendQuery(con, "SELECT yearID, teamID, teamIDBR FROM lahman2016.Teams")
+teams <- dbSendQuery(con, "SELECT year_id as year_ID, team_id as team_ID FROM Baseball.teams")
 t <- fetch(teams, n = -1)
 
 df2 <- left_join(df, m, by = c("player_ID"))
 
 names(t)[names(t)=="teamIDBR"] <- "team_ID"
-names(t)[names(t)=="yearID"] <- "year_ID"
 
 df3 <- left_join(df2, t)
 
 #Reorder data frame
-final <- subset(df3, select = c(player_ID,  year_ID, age, team_ID,  stint_ID, lg_ID, G, GS, IPouts, IPouts_start, 
+final <- subset(df3, select = c(player_ID, bbrefID, retroid,  year_ID, age, team_ID,  stint_ID, lg_ID, G, GS, IPouts, IPouts_start, 
                                 IPouts_relief, RA, xRA, xRA_sprp_adj, xRA_def_pitcher, PPF, PPF_custom, xRA_final, 
                                 BIP, BIP_perc, RS_def_total, runs_above_avg, runs_above_avg_adj, runs_above_rep, 
                                 RpO_replacement, GR_leverage_index_avg, WAR, salary, teamRpG, oppRpG, pyth_exponent, 
@@ -76,3 +75,7 @@ final$waa_win_perc_rep <- as.double(as.character(final$waa_win_perc_rep))
 final$WAR_rep <- as.double(as.character(final$WAR_rep))
 
 dbWriteTable(con, name='war_pitching', value=final, row.names = FALSE, overwrite = TRUE)
+
+all_cons <- dbListConnections(MySQL())
+for(con in all_cons) 
+  dbDisconnect(con)

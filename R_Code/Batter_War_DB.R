@@ -11,28 +11,25 @@ download.file(fileUrl, destfile="war_daily_bat.csv", method="curl")
 # Write the download to a data frame
 df <- read.csv("war_daily_bat.csv", header=TRUE, stringsAsFactors=FALSE)
 
-con <- dbConnect(MySQL(), user='atroiano', password='Start321!', dbname='lahman2016', host='rds-mysql-baseball.chnrrc0i0hax.us-east-1.rds.amazonaws.com')
-master <- dbSendQuery(con, "SELECT playerID as player_ID, bbrefID FROM lahman2016.Master")
+con <- dbConnect(MySQL(), user='root', password='andrew', dbname='Baseball', host='127.0.0.1')
+master <- dbSendQuery(con, "SELECT playerID as player_ID, bbrefID, retroid FROM Baseball.master")
 m <- fetch(master, n = -1)
 dbClearResult(dbListResults(con)[[1]])
 
-con <- dbConnect(MySQL(), user='atroiano', password='Start321!', dbname='lahman2016', host='rds-mysql-baseball.chnrrc0i0hax.us-east-1.rds.amazonaws.com')
-teams <- dbSendQuery(con, "SELECT yearID, teamID, teamIDBR FROM lahman2016.Teams")
+teams <- dbSendQuery(con, "SELECT year_ID, team_ID from baseball.teams")
 t <- fetch(teams, n = -1)
 
 #Join master and war data frames
 df2 <- left_join(df, m, by = c("player_ID"))
 
 # Convert and rename a few things in the teams dataframe to make the join smooth
-t$teamID <- as.factor(t$teamID)
-names(t)[names(t)=="teamIDBR"] <- "team_ID"
-names(t)[names(t)=="yearID"] <- "year_ID"
+#t$teamID <- as.factor(t$team_ID)
 
 #Now we index the teams
 df3 <- left_join(df2, t)
 
 #Reorder data frame
-final <- subset(df3, select = c(player_ID, year_ID, age, team_ID, stint_ID, lg_ID, PA, G, 
+final <- subset(df3, select = c(player_ID,bbrefID, retroid, year_ID, age, team_ID, stint_ID, lg_ID, PA, G, 
                                 Inn, runs_bat, runs_br, runs_dp, runs_field, runs_infield, 
                                 runs_outfield, runs_catcher, runs_good_plays, runs_defense, 
                                 runs_position, runs_position_p, runs_replacement, runs_above_rep, 
@@ -89,3 +86,8 @@ final$waa_win_perc_rep <- as.double(as.character(final$waa_win_perc_rep))
 
 
 dbWriteTable(con, name='war_batting', value=final, row.names = FALSE, overwrite = TRUE)
+
+#close all connections
+all_cons <- dbListConnections(MySQL())
+for(con in all_cons) 
+  dbDisconnect(con)
